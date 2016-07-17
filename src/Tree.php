@@ -2,9 +2,11 @@
 
 namespace PhpCategories;
 
-class Tree {
+class Tree implements \Iterator {
 
     private $data;
+
+    private $position = [0];
 
     public function __construct($horizontalCategories) {
         $this->build($horizontalCategories);
@@ -53,7 +55,7 @@ class Tree {
 
         if (!empty($node->children)) {
             foreach ($node->children as &$childNode) {
-                $result = & self::findParentNode($childNode, $parentId);
+                $result = & $this->findParentNode($childNode, $parentId);
 
                 if ($result) {
                     break;
@@ -63,5 +65,61 @@ class Tree {
 
         return $result;
     }
+
+    public function current() {
+        $current = $this->data;
+
+        foreach ($this->position as $key) {
+            $current = $current->children[ $key ];
+        }
+
+        return $current;
+    }
+
+    public function next() {
+        $current = $this->current();
+
+        if (isset($current->children[0])) {
+            $this->position[] = 0;
+        }
+        else {
+            while(count($this->position) > 0) {
+                $sameLvlNextPos = array_pop($this->position) + 1;
+                $current = $this->current();
+
+                if (isset($current->children[ $sameLvlNextPos ])) {
+                    $this->position[] = $sameLvlNextPos;
+                    break;
+                }
+            }
+        }
+    }
+
+    public function key() {
+        return $this->position;
+    }
+
+    public function valid() {
+        $current = $this->data;
+
+        if (!$this->position) {
+            return false;
+        }
+
+        foreach ($this->position as $key) {
+            if (!isset($current->children[ $key ])) {
+                return false;
+            }
+
+            $current = $current->children[ $key ];
+        }
+
+        return true;
+    }
+
+    public function rewind() {
+        $this->position = [0];
+    }
+
 
 }

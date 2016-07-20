@@ -59,11 +59,18 @@ $categories = [
 
 $tree = new \PhpCategories\Tree($categories);
 
-foreach ($tree as $key => $category) {
-//    var_dump($key);
-    var_dump($category->name);
-}
+//foreach ($tree as $key => $category) {
+//    var_dump(isset($tree[ $key ]));
+//    var_dump($tree[ $key ]->slug);
+//    var_dump($category->name);
+//}
 
+//var_dump(isset($tree[[0,1,0,0]]));
+//unset($tree[[0,0]]);
+//unset($tree[[2]]);
+//unset($tree[[3]]);
+//$tree[] = $tree[[0,1]];
+//$tree[[5]] = $tree[[2]];
 
-//var_dump($tree);
+var_dump($tree);
 die;

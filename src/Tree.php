@@ -2,14 +2,54 @@
 
 namespace PhpCategories;
 
-class Tree implements \Iterator {
+class Tree implements \Iterator, \ArrayAccess { //Countable
 
     private $data;
 
-    private $position = [0];
+    private $iterator;
 
-    public function __construct($horizontalCategories) {
+    private $arrayAccess;
+
+    public function __construct(array $horizontalCategories) {
         $this->build($horizontalCategories);
+        $this->iterator = new HorizontalIterator($this->data);
+        $this->arrayAccess = new ArrayAccess($this->data);
+    }
+
+    public function current() {
+        return $this->iterator->current();
+    }
+
+    public function next() {
+        $this->iterator->next();
+    }
+
+    public function key() {
+        return $this->iterator->key();
+    }
+
+    public function valid() {
+        return $this->iterator->valid();
+    }
+
+    public function rewind() {
+        $this->iterator->rewind();
+    }
+
+    public function offsetExists($offset) {
+        return $this->arrayAccess->offsetExists($offset);
+    }
+
+    public function offsetGet($offset) {
+        return $this->arrayAccess->offsetGet($offset);
+    }
+
+    public function offsetSet($offset, $value) {
+        $this->arrayAccess->offsetSet($offset,$value);
+    }
+
+    public function offsetUnset($offset) {
+        $this->arrayAccess->offsetUnset($offset);
     }
 
     private function build($horizontalCategories) {
@@ -65,61 +105,4 @@ class Tree implements \Iterator {
 
         return $result;
     }
-
-    public function current() {
-        $current = $this->data;
-
-        foreach ($this->position as $key) {
-            $current = $current->children[ $key ];
-        }
-
-        return $current;
-    }
-
-    public function next() {
-        $current = $this->current();
-
-        if (isset($current->children[0])) {
-            $this->position[] = 0;
-        }
-        else {
-            while(count($this->position) > 0) {
-                $sameLvlNextPos = array_pop($this->position) + 1;
-                $current = $this->current();
-
-                if (isset($current->children[ $sameLvlNextPos ])) {
-                    $this->position[] = $sameLvlNextPos;
-                    break;
-                }
-            }
-        }
-    }
-
-    public function key() {
-        return $this->position;
-    }
-
-    public function valid() {
-        $current = $this->data;
-
-        if (!$this->position) {
-            return false;
-        }
-
-        foreach ($this->position as $key) {
-            if (!isset($current->children[ $key ])) {
-                return false;
-            }
-
-            $current = $current->children[ $key ];
-        }
-
-        return true;
-    }
-
-    public function rewind() {
-        $this->position = [0];
-    }
-
-
 }

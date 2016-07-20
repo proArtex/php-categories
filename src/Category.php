@@ -14,7 +14,7 @@ class Category {
 
     public $slug;
 
-    public $children;
+    public $children = [];
 
     public function __construct($data) {
         $allowedFields = ['id', 'parentId', 'level', 'name', 'slug', 'children'];

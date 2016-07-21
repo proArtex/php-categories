@@ -4,6 +4,10 @@ namespace PhpCategories;
 
 class Tree implements \Iterator, \ArrayAccess {
 
+    const MODE_SILENT = 0;
+
+    const MODE_DEBUG  = 1;
+
     /**
      * @var CategoryBase
      */
@@ -11,62 +15,6 @@ class Tree implements \Iterator, \ArrayAccess {
 
     public function __construct(array $horizontalCategories) {
         $this->build($horizontalCategories);
-    }
-
-
-
-    private function build($horizontalCategories) {
-        $tree = new Category([
-            'id'        => 0,
-            'parentId'  => 0,
-            'level'     => 0,
-            'name'      => 'Root',
-            'slug'      => 'root',
-            'children'  => []
-        ]);
-
-        //TODO: compare prev and curr iteration counters instead (return or throw Exception)
-        $maxIterations = count($horizontalCategories);
-        $iterations = 0;
-
-        while (++$iterations < $maxIterations) {
-            foreach ($horizontalCategories as $key => &$category) {
-                $parentCategory = & $this->findParentNode($tree, $category['parentId']);
-
-                if ($parentCategory) {
-                    $category['level'] = $parentCategory->level + 1;
-                    $parentCategory->children[] = new Category($category);
-                    unset($horizontalCategories[ $key ]);
-                }
-            }
-        }
-
-        if ($horizontalCategories) {
-            //TODO: throw custom exception
-            throw new \Exception('Max cycle of category-tree building has been reached');
-        }
-
-        $this->rootCategory = $tree;
-    }
-
-    private function & findParentNode(&$node, &$parentId) {
-        if ($node->id == $parentId) {
-            return $node;
-        }
-
-        $result = false;
-
-        if (!empty($node->children)) {
-            foreach ($node->children as &$childNode) {
-                $result = & $this->findParentNode($childNode, $parentId);
-
-                if ($result) {
-                    break;
-                }
-            }
-        }
-
-        return $result;
     }
 
     public function current() {
@@ -103,6 +51,60 @@ class Tree implements \Iterator, \ArrayAccess {
 
     public function offsetUnset($offset) {
         $this->rootCategory->offsetUnset($offset);
+    }
+
+    private function build(array $horizontalCategories) {
+        $tree = new Category([
+            'id'        => 0,
+            'parentId'  => 0,
+            'level'     => 0,
+            'name'      => 'Root',
+            'slug'      => 'root',
+            'children'  => []
+        ]);
+
+        do {
+            $isEffectiveIteration = false;
+
+            foreach ($horizontalCategories as $key => &$category) {
+                $parentCategory = & $this->findParentNode($tree, $category['parentId']);
+
+                if ($parentCategory) {
+                    $isEffectiveIteration = true;
+                    $category['level'] = $parentCategory->level + 1;
+                    $parentCategory->children[] = new Category($category);
+                    unset($horizontalCategories[ $key ]);
+                }
+            }
+        } while ($isEffectiveIteration);
+
+
+        if ($horizontalCategories) {
+            //TODO: throw custom exception
+            throw new \Exception('There are ' . count($horizontalCategories) . ' unassigned categories: ' . implode(', ', array_column($horizontalCategories, 'id')));
+        }
+
+        $this->rootCategory = $tree;
+    }
+
+    private function & findParentNode(&$node, &$parentId) {
+        if ($node->id == $parentId) {
+            return $node;
+        }
+
+        $result = false;
+
+        if (!empty($node->children)) {
+            foreach ($node->children as &$childNode) {
+                $result = & $this->findParentNode($childNode, $parentId);
+
+                if ($result) {
+                    break;
+                }
+            }
+        }
+
+        return $result;
     }
 
 }

@@ -7,7 +7,7 @@ class ArrayAccess implements \ArrayAccess {
 
     protected $data;
 
-    public function __construct(&$data) {
+    public function __construct(CategoryBase &$data) {
         $this->data = & $data;
     }
 
@@ -35,7 +35,7 @@ class ArrayAccess implements \ArrayAccess {
 
     //FIXME: unsafe op
     public function offsetSet($offset, $value) {
-        if ($value instanceof Category) {
+        if ($value instanceof CategoryBase) {
             if (is_null($offset)) {
                 $this->data->children[] = $value;
             }

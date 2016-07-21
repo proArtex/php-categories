@@ -2,19 +2,7 @@
 
 namespace PhpCategories;
 
-class Category {
-
-    public $id;
-
-    public $parentId;
-
-    public $level;
-
-    public $name;
-
-    public $slug;
-
-    public $children = [];
+class Category extends CategoryBase {
 
     public function __construct($data) {
         $allowedFields = ['id', 'parentId', 'level', 'name', 'slug', 'children'];

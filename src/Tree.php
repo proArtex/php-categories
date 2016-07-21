@@ -2,55 +2,18 @@
 
 namespace PhpCategories;
 
-class Tree implements \Iterator, \ArrayAccess { //Countable
+class Tree implements \Iterator, \ArrayAccess {
 
-    private $data;
-
-    private $iterator;
-
-    private $arrayAccess;
+    /**
+     * @var CategoryBase
+     */
+    private $rootCategory;
 
     public function __construct(array $horizontalCategories) {
         $this->build($horizontalCategories);
-        $this->iterator = new HorizontalIterator($this->data);
-        $this->arrayAccess = new ArrayAccess($this->data);
     }
 
-    public function current() {
-        return $this->iterator->current();
-    }
 
-    public function next() {
-        $this->iterator->next();
-    }
-
-    public function key() {
-        return $this->iterator->key();
-    }
-
-    public function valid() {
-        return $this->iterator->valid();
-    }
-
-    public function rewind() {
-        $this->iterator->rewind();
-    }
-
-    public function offsetExists($offset) {
-        return $this->arrayAccess->offsetExists($offset);
-    }
-
-    public function offsetGet($offset) {
-        return $this->arrayAccess->offsetGet($offset);
-    }
-
-    public function offsetSet($offset, $value) {
-        $this->arrayAccess->offsetSet($offset,$value);
-    }
-
-    public function offsetUnset($offset) {
-        $this->arrayAccess->offsetUnset($offset);
-    }
 
     private function build($horizontalCategories) {
         $tree = new Category([
@@ -62,7 +25,7 @@ class Tree implements \Iterator, \ArrayAccess { //Countable
             'children'  => []
         ]);
 
-        //TODO: compare prev and curr iteration counters instead
+        //TODO: compare prev and curr iteration counters instead (return or throw Exception)
         $maxIterations = count($horizontalCategories);
         $iterations = 0;
 
@@ -83,7 +46,7 @@ class Tree implements \Iterator, \ArrayAccess { //Countable
             throw new \Exception('Max cycle of category-tree building has been reached');
         }
 
-        $this->data = $tree;
+        $this->rootCategory = $tree;
     }
 
     private function & findParentNode(&$node, &$parentId) {
@@ -105,4 +68,41 @@ class Tree implements \Iterator, \ArrayAccess { //Countable
 
         return $result;
     }
+
+    public function current() {
+        return $this->rootCategory->current();
+    }
+
+    public function next() {
+        $this->rootCategory->next();
+    }
+
+    public function key() {
+        return $this->rootCategory->key();
+    }
+
+    public function valid() {
+        return $this->rootCategory->valid();
+    }
+
+    public function rewind() {
+        $this->rootCategory->rewind();
+    }
+
+    public function offsetExists($offset) {
+        return $this->rootCategory->offsetExists($offset);
+    }
+
+    public function offsetGet($offset) {
+        return $this->rootCategory->offsetGet($offset);
+    }
+
+    public function offsetSet($offset, $value) {
+        $this->rootCategory->offsetSet($offset, $value);
+    }
+
+    public function offsetUnset($offset) {
+        $this->rootCategory->offsetUnset($offset);
+    }
+
 }

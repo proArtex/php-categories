@@ -8,7 +8,7 @@ abstract class Iterator implements \Iterator {
 
     protected $position = [0];
 
-    public function __construct(&$data) {
+    public function __construct(CategoryBase &$data) {
         $this->data = & $data;
     }
 

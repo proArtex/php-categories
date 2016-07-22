@@ -1,19 +1,22 @@
 <?php
 
-namespace PhpCategories;
+namespace ProArtex\PhpCategories\DataStructure;
 
 abstract class Iterator implements \Iterator {
 
-    protected $data;
+    /**
+     * @var Node
+     */
+    protected $node;
 
     protected $position = [0];
 
-    public function __construct(CategoryBase &$data) {
-        $this->data = & $data;
+    public function __construct(Node &$node) {
+        $this->node = & $node;
     }
 
     public function current() {
-        $current = & $this->data;
+        $current = & $this->node;
 
         foreach ($this->position as $key) {
             $current = & $current->children[ $key ];
@@ -27,7 +30,7 @@ abstract class Iterator implements \Iterator {
     }
 
     public function valid() {
-        $current = & $this->data;
+        $current = & $this->node;
 
         if (!$this->position) {
             return false;

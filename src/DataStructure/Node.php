@@ -1,12 +1,12 @@
 <?php
 
-namespace PhpCategories;
+namespace ProArtex\PhpCategories\DataStructure;
 
 /**
  * Lazy load implementation
  * TODO: get parents's Iterator & ArrayAccess first
  */
-class CategoryBase implements ArrayAccessibleInterface {
+class Node implements ArrayAccessibleInterface {
 
     public $id;
 
@@ -32,7 +32,7 @@ class CategoryBase implements ArrayAccessibleInterface {
      */
     protected $arrayAccess;
 
-    public function __construct(CategoryBase $parent = null) {
+    public function __construct(Node $parent = null) {
         $this->parent = $parent;
     }
 

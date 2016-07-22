@@ -68,7 +68,7 @@ $categories = [
 //    ],
 ];
 
-$tree = new \PhpCategories\Tree($categories);
+$tree = new \ProArtex\PhpCategories\CategoryTree($categories);
 
 //foreach ($tree as $key => $category) {
 //    var_dump(isset($tree[ $key ]));

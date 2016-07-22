@@ -1,6 +1,6 @@
 <?php
 
-namespace PhpCategories;
+namespace ProArtex\PhpCategories\DataStructure;
 
 class HorizontalIterator extends Iterator {
 

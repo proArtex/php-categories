@@ -1,10 +1,12 @@
 <?php
 
-namespace PhpCategories;
+namespace ProArtex\PhpCategories;
 
-class Category extends CategoryBase {
+use ProArtex\PhpCategories\DataStructure\Node;
 
-    public function __construct($data, CategoryBase $parent = null) {
+class Category extends Node {
+
+    public function __construct($data, Node $parent = null) {
         parent::__construct($parent);
         $allowedFields = ['id', 'parentId', 'level', 'name', 'slug', 'children'];
 

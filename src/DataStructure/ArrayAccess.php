@@ -1,14 +1,17 @@
 <?php
 
-namespace PhpCategories;
+namespace ProArtex\PhpCategories\DataStructure;
 
 //TODO: warnings
 class ArrayAccess implements \ArrayAccess {
 
-    protected $data;
+    /**
+     * @var Node
+     */
+    protected $node;
 
-    public function __construct(CategoryBase &$data) {
-        $this->data = & $data;
+    public function __construct(Node &$node) {
+        $this->node = & $node;
     }
 
     public function offsetExists($offset) {
@@ -17,7 +20,7 @@ class ArrayAccess implements \ArrayAccess {
 
     public function offsetGet($offset) {
         if ($offset && is_array($offset)) {
-            $current = & $this->data;
+            $current = & $this->node;
 
             foreach ($offset as $key) {
                 if (!isset($current->children[ $key ])) {
@@ -35,9 +38,9 @@ class ArrayAccess implements \ArrayAccess {
 
     //FIXME: unsafe op
     public function offsetSet($offset, $value) {
-        if ($value instanceof CategoryBase) {
+        if ($value instanceof Node) {
             if (is_null($offset)) {
-                $this->data->children[] = $value;
+                $this->node->children[] = $value;
             }
             elseif ($offset && is_array($offset)) {
                 list($parentNode, $key) = $this->getNodeCoordinates($offset);
@@ -64,7 +67,7 @@ class ArrayAccess implements \ArrayAccess {
 
         if ($isFirstLvl) {
             $key = current($offset);
-            $parentNode = & $this->data;
+            $parentNode = & $this->node;
         }
         else {
             $key = array_pop($offset);

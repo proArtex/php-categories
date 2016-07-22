@@ -4,6 +4,7 @@ namespace PhpCategories;
 
 /**
  * Lazy load implementation
+ * TODO: get parents's Iterator & ArrayAccess first
  */
 class CategoryBase implements ArrayAccessibleInterface {
 
@@ -17,6 +18,8 @@ class CategoryBase implements ArrayAccessibleInterface {
 
     public $slug;
 
+    public $parent;
+
     public $children = [];
 
     /**
@@ -28,6 +31,10 @@ class CategoryBase implements ArrayAccessibleInterface {
      * @var \ArrayAccess
      */
     protected $arrayAccess;
+
+    public function __construct(CategoryBase $parent = null) {
+        $this->parent = $parent;
+    }
 
     public function current() {
         if (!$this->iterator) {
@@ -99,6 +106,22 @@ class CategoryBase implements ArrayAccessibleInterface {
         }
 
         $this->arrayAccess->offsetUnset($offset);
+    }
+
+    public function getPathFor($property) {
+        if (property_exists($this, $property) && $this->parent) {
+            $path = [];
+            $current = $this;
+
+            do {
+                array_unshift($path, $current->{$property});
+                $current = $current->parent;
+            } while ($current);
+
+            return $path;
+        }
+
+        return [];
     }
 
     public function setIterator(\Iterator $iterator) {

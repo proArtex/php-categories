@@ -66,13 +66,13 @@ class Tree implements \Iterator, \ArrayAccess {
         do {
             $isEffectiveIteration = false;
 
-            foreach ($horizontalCategories as $key => &$category) {
-                $parentCategory = & $this->findParentNode($tree, $category['parentId']);
+            foreach ($horizontalCategories as $key => &$arrayCategory) {
+                $parentCategory = & $this->findParentNode($tree, $arrayCategory['parentId']);
 
                 if ($parentCategory) {
                     $isEffectiveIteration = true;
-                    $category['level'] = $parentCategory->level + 1;
-                    $parentCategory->children[] = new Category($category);
+                    $arrayCategory['level'] = $parentCategory->level + 1;
+                    $parentCategory->children[] = new Category($arrayCategory, $parentCategory);
                     unset($horizontalCategories[ $key ]);
                 }
             }

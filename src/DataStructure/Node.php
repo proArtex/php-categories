@@ -4,7 +4,6 @@ namespace ProArtex\PhpCategories\DataStructure;
 
 /**
  * Lazy load implementation
- * TODO: get parents's Iterator & ArrayAccess first
  */
 class Node implements ArrayAccessibleInterface {
 
@@ -18,7 +17,7 @@ class Node implements ArrayAccessibleInterface {
 
     public $slug;
 
-    public $parent;
+    public $path;
 
     public $children = [];
 
@@ -32,13 +31,13 @@ class Node implements ArrayAccessibleInterface {
      */
     protected $arrayAccess;
 
-    public function __construct(Node $parent = null) {
-        $this->parent = $parent;
+    public function __construct(\SplDoublyLinkedList $parents = null) {
+        $this->buildPath($parents);
     }
 
     public function current() {
         if (!$this->iterator) {
-            $this->iterator = $this->getDefaultIterator();
+            $this->iterator = $this->getSuitableIterator();
         }
 
         return $this->iterator->current();
@@ -46,7 +45,7 @@ class Node implements ArrayAccessibleInterface {
 
     public function next() {
         if (!$this->iterator) {
-            $this->iterator = $this->getDefaultIterator();
+            $this->iterator = $this->getSuitableIterator();
         }
 
         $this->iterator->next();
@@ -54,7 +53,7 @@ class Node implements ArrayAccessibleInterface {
 
     public function key() {
         if (!$this->iterator) {
-            $this->iterator = $this->getDefaultIterator();
+            $this->iterator = $this->getSuitableIterator();
         }
 
         return $this->iterator->key();
@@ -62,7 +61,7 @@ class Node implements ArrayAccessibleInterface {
 
     public function valid() {
         if (!$this->iterator) {
-            $this->iterator = $this->getDefaultIterator();
+            $this->iterator = $this->getSuitableIterator();
         }
 
         return $this->iterator->valid();
@@ -70,7 +69,7 @@ class Node implements ArrayAccessibleInterface {
 
     public function rewind() {
         if (!$this->iterator) {
-            $this->iterator = $this->getDefaultIterator();
+            $this->iterator = $this->getSuitableIterator();
         }
 
         $this->iterator->rewind();
@@ -78,7 +77,7 @@ class Node implements ArrayAccessibleInterface {
 
     public function offsetExists($offset) {
         if (!$this->arrayAccess) {
-            $this->arrayAccess = $this->getDefaultArrayAccess();
+            $this->arrayAccess = $this->getSuitableArrayAccess();
         }
 
         return $this->arrayAccess->offsetExists($offset);
@@ -86,15 +85,15 @@ class Node implements ArrayAccessibleInterface {
 
     public function offsetGet($offset) {
         if (!$this->arrayAccess) {
-            $this->arrayAccess = $this->getDefaultArrayAccess();
+            $this->arrayAccess = $this->getSuitableArrayAccess();
         }
-
+        
         return $this->arrayAccess->offsetGet($offset);
     }
 
     public function offsetSet($offset, $value) {
         if (!$this->arrayAccess) {
-            $this->arrayAccess = $this->getDefaultArrayAccess();
+            $this->arrayAccess = $this->getSuitableArrayAccess();
         }
 
         $this->arrayAccess->offsetSet($offset,$value);
@@ -102,21 +101,19 @@ class Node implements ArrayAccessibleInterface {
 
     public function offsetUnset($offset) {
         if (!$this->arrayAccess) {
-            $this->arrayAccess = $this->getDefaultArrayAccess();
+            $this->arrayAccess = $this->getSuitableArrayAccess();
         }
 
         $this->arrayAccess->offsetUnset($offset);
     }
 
     public function getPathFor($property) {
-        if (property_exists($this, $property) && $this->parent) {
+        if (property_exists($this, $property) && $this->path) {
             $path = [];
-            $current = $this;
 
-            do {
-                array_unshift($path, $current->{$property});
-                $current = $current->parent;
-            } while ($current);
+            foreach ($this->path as $node) {
+                $path[] = $node->{$property};
+            }
 
             return $path;
         }
@@ -124,20 +121,48 @@ class Node implements ArrayAccessibleInterface {
         return [];
     }
 
+    //TODO: override children?
     public function setIterator(\Iterator $iterator) {
         $this->iterator = $iterator;
     }
 
+    //TODO: override children?
     public function setArrayAccess(\ArrayAccess $arrayAccess) {
         $this->arrayAccess = $arrayAccess;
     }
 
-    protected function getDefaultIterator() {
+    protected function getSuitableIterator() {
+        foreach ($this->path as $node) {
+            if ($node->iterator) {
+                $iteratorClass = get_class($node->iterator);
+                return new $iteratorClass($this);
+            }
+        }
+
         return new HorizontalIterator($this);
     }
 
-    protected function getDefaultArrayAccess() {
+    protected function getSuitableArrayAccess() {
+        foreach ($this->path as $node) {
+            if ($node->arrayAccess) {
+                $arrayAccessClass = get_class($node->arrayAccess);
+                return new $arrayAccessClass($this);
+            }
+        }
+
         return new ArrayAccess($this);
+    }
+
+    private function buildPath(\SplDoublyLinkedList $parents = null) {
+        $this->path = new \SplDoublyLinkedList();
+
+        if ($parents) {
+            foreach ($parents as $parent) {
+                $this->path->push($parent);
+            }
+        }
+
+        $this->path->push($this);
     }
 
 }

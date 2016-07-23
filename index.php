@@ -31,6 +31,12 @@ $categories = [
         'slug' => "something",
     ],
     [
+        'id' => 8,
+        'parentId' => 4,
+        'name' => "Sub2 - Sub1 - Sub1",
+        'slug' => "sub2-sub1-sub1",
+    ],
+    [
         'id' => 4,
         'parentId' => 3,
         'name' => "Sub2 - Sub1",
@@ -74,6 +80,16 @@ $tree = new \ProArtex\PhpCategories\CategoryTree($categories);
 //    var_dump(isset($tree[ $key ]));
 //    var_dump($tree[ $key ]->slug);
 //    var_dump($category->name);
+//    var_dump($category->getPathFor('slug'));
+//
+//    if ($category->level == 3) {
+//        foreach ($category as $subKey => $subCategory) {
+//            var_dump($subKey);
+//            var_dump($subCategory);
+//            var_dump($subCategory->name);
+//            var_dump($category[ $subKey ]->slug);
+//        }
+//    }
 //}
 //
 //var_dump(isset($tree[[0,1,0,0]]));

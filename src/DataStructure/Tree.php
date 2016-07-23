@@ -3,7 +3,7 @@
 namespace ProArtex\PhpCategories\DataStructure;
 
 //TODO: __call implementation
-abstract class Tree implements \Iterator, \ArrayAccess {
+abstract class Tree implements ArrayAccessibleInterface {
 
     const MODE_SILENT = 0;
 
@@ -65,19 +65,25 @@ abstract class Tree implements \Iterator, \ArrayAccess {
             'level'     => 0,
             'name'      => 'Root',
             'slug'      => 'root',
-            'children'  => []
+            'children'  => [],
+            'path'      => new \SplDoublyLinkedList()
         ]);
+
+        $tree->path->push($tree);
 
         do {
             $isEffectiveIteration = false;
 
             foreach ($horizontalNodes as $key => &$arrayNode) {
+                /**
+                 * @var Node $parentNode
+                 */
                 $parentNode = & $this->findParentNode($tree, $arrayNode['parentId']);
 
                 if ($parentNode) {
                     $isEffectiveIteration = true;
                     $arrayNode['level'] = $parentNode->level + 1;
-                    $parentNode->children[] = new $nodeClass($arrayNode, $parentNode);
+                    $parentNode->children[] = new $nodeClass($arrayNode, $parentNode->path);
                     unset($horizontalNodes[ $key ]);
                 }
             }

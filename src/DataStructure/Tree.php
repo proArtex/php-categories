@@ -3,7 +3,7 @@
 namespace ProArtex\PhpCategories\DataStructure;
 
 //TODO: __call implementation
-abstract class Tree implements ArrayAccessibleInterface {
+abstract class Tree implements NodeInterface {
 
     const MODE_SILENT = 0;
 
@@ -52,6 +52,18 @@ abstract class Tree implements ArrayAccessibleInterface {
 
     public function offsetUnset($offset) {
         $this->rootNode->offsetUnset($offset);
+    }
+
+    public function getPathFor($property) {
+        return $this->rootNode->getPathFor($property);
+    }
+
+    public function setIterator($iteratorClass, $recursive = true) {
+        $this->rootNode->setIterator($iteratorClass, $recursive);
+    }
+
+    public function setArrayAccess($arrayAccessClass, $recursive = true) {
+        $this->rootNode->setArrayAccess($arrayAccessClass, $recursive);
     }
 
     abstract protected function getNodeClass();

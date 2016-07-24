@@ -5,7 +5,7 @@ namespace ProArtex\PhpCategories\DataStructure;
 /**
  * Lazy load implementation
  */
-class Node implements ArrayAccessibleInterface {
+class Node implements NodeInterface {
 
     public $id;
 
@@ -91,6 +91,7 @@ class Node implements ArrayAccessibleInterface {
         return $this->arrayAccess->offsetGet($offset);
     }
 
+    //TODO: make it smart (validate levels, parents, etc.)
     public function offsetSet($offset, $value) {
         if (!$this->arrayAccess) {
             $this->arrayAccess = $this->getSuitableArrayAccess();
@@ -121,14 +122,34 @@ class Node implements ArrayAccessibleInterface {
         return [];
     }
 
-    //TODO: override children?
-    public function setIterator(\Iterator $iterator) {
-        $this->iterator = $iterator;
+    public function setIterator($iteratorClass, $recursive = true) {
+        if (isset(class_implements($iteratorClass)['Iterator'])) {
+            $this->iterator = new $iteratorClass($this);
+
+            if ($recursive) {
+                foreach ($this as $node) {
+                    /**
+                     * @var Node $node
+                     */
+                    $node->setIterator(new $iteratorClass($node), false);
+                }
+            }
+        }
     }
 
-    //TODO: override children?
-    public function setArrayAccess(\ArrayAccess $arrayAccess) {
-        $this->arrayAccess = $arrayAccess;
+    public function setArrayAccess($arrayAccessClass, $recursive = true) {
+        if (isset(class_implements($arrayAccessClass)['ArrayAccess'])) {
+            $this->arrayAccess = new $arrayAccessClass($this);
+
+            if ($recursive) {
+                foreach ($this as $node) {
+                    /**
+                     * @var Node $node
+                     */
+                    $node->setArrayAccess(new $arrayAccessClass($node), false);
+                }
+            }
+        }
     }
 
     protected function getSuitableIterator() {

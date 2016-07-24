@@ -99,5 +99,10 @@ $tree = new \ProArtex\PhpCategories\CategoryTree($categories);
 //$tree[] = $tree[[0,1]];
 //$tree[[5]] = $tree[[2]];
 
+//$tree->setIterator(\ProArtex\PhpCategories\DataStructure\HorizontalIterator::class, false);
+//$tree->setIterator(\ProArtex\PhpCategories\DataStructure\HorizontalIterator::class);
+//$tree->setArrayAccess(\ProArtex\PhpCategories\DataStructure\ArrayAccess::class, false);
+//$tree->setArrayAccess(\ProArtex\PhpCategories\DataStructure\ArrayAccess::class);
+
 var_dump($tree);
 die;
